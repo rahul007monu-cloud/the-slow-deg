@@ -56,11 +56,7 @@ export function Footer() {
           </a>
         </div>
       </div>
-      <div className="border-t border-cream/5 py-6 text-center text-xs text-cream/30">© {new Date().getFullYear()} {brand.name}. Cooked slow, served with love. ·{" "}
-        <a href="/credits" className="underline-offset-2 hover:text-cream/60 hover:underline">
-          Photo credits
-        </a>
-      </div>
+      <div className="border-t border-cream/5 py-6 text-center text-xs text-cream/30">© {new Date().getFullYear()} {brand.name}. Cooked slow, served with love.</div>
     </footer>
   );
 }

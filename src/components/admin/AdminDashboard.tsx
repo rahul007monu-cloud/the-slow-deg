@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { calculateQuote, inr } from "@/lib/pricing";
-import type { BookingStatus, Dish, Settings, StoredBooking } from "@/lib/types";
+import { pieceKinds, type BookingStatus, type Dish, type Settings, type StoredBooking } from "@/lib/types";
 
 type Data = { settings: Settings; menu: Dish[]; bookings: StoredBooking[]; blocked: string[] };
 type Tab = "bookings" | "price" | "menu" | "calendar";
@@ -17,7 +17,7 @@ async function api<T>(url: string, method: string, body?: unknown): Promise<T> {
 
 const input = "w-full rounded-xl border border-cream/15 bg-coal/60 px-3 py-2.5 text-cream outline-none focus:border-saffron [color-scheme:dark]";
 
-export function AdminDashboard({ initial, storeReady, blobReady }: { initial: Data; storeReady: boolean; blobReady: boolean }) {
+export function AdminDashboard({ initial, storeReady }: { initial: Data; storeReady: boolean }) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("bookings");
   const [toast, setToast] = useState<{ ok: boolean; msg: string } | null>(null);
@@ -73,7 +73,7 @@ export function AdminDashboard({ initial, storeReady, blobReady }: { initial: Da
       <div className="mt-8">
         {tab === "bookings" && <Bookings initial={initial.bookings} notify={notify} />}
         {tab === "price" && <PriceSettings initial={initial.settings} notify={notify} />}
-        {tab === "menu" && <MenuEditor initial={initial.menu} notify={notify} blobReady={blobReady} />}
+        {tab === "menu" && <MenuEditor initial={initial.menu} notify={notify} />}
         {tab === "calendar" && <Calendar initial={initial.blocked} bookings={initial.bookings} notify={notify} />}
       </div>
 
@@ -282,14 +282,23 @@ function L({ label, children, wide = false }: { label: string; children: React.R
 }
 
 /* ------------------------------ Menu ------------------------------ */
+const pieceLabels: Record<Dish["piece"], string> = {
+  drumstick: "Chicken leg (tangdi)",
+  seekh: "Seekh kebab",
+  tikka: "Tikka skewer",
+  chop: "Lamb chop",
+  raan: "Raan (whole leg)",
+  fish: "Fish tikka",
+  none: "No 3D piece (biryani, curry)",
+};
+
 function newDish(): Dish {
-  return { id: `dish-${Date.now().toString(36)}`, name: "New dish", hindi: "", description: "", category: "grill", tag: "Cooked live", heat: 2, signature: false, visible: true, photo: "/food/tandoori.webp", photoCredit: "" };
+  return { id: `dish-${Date.now().toString(36)}`, name: "New dish", hindi: "", description: "", category: "grill", tag: "Cooked live", heat: 2, signature: false, visible: true, piece: "drumstick" };
 }
 
-function MenuEditor({ initial, notify, blobReady }: { initial: Dish[]; notify: Notify; blobReady: boolean }) {
+function MenuEditor({ initial, notify }: { initial: Dish[]; notify: Notify }) {
   const [menu, setMenu] = useState(initial);
   const [busy, setBusy] = useState(false);
-  const [uploading, setUploading] = useState<string | null>(null);
   const dirty = useMemo(() => JSON.stringify(menu) !== JSON.stringify(initial), [menu, initial]);
 
   const update = (i: number, patch: Partial<Dish>) => setMenu((m) => m.map((d, j) => (j === i ? { ...d, ...patch } : d)));
@@ -301,21 +310,6 @@ function MenuEditor({ initial, notify, blobReady }: { initial: Dish[]; notify: N
       [c[i], c[j]] = [c[j], c[i]];
       return c;
     });
-
-  async function upload(i: number, file: File) {
-    setUploading(menu[i].id);
-    try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const { url } = await api<{ url: string }>("/api/admin/upload", "POST", fd);
-      update(i, { photo: url, photoCredit: "" });
-      notify(true, "Photo uploaded. Press Save menu.");
-    } catch (e) {
-      notify(false, (e as Error).message);
-    } finally {
-      setUploading(null);
-    }
-  }
 
   async function save() {
     setBusy(true);
@@ -338,20 +332,11 @@ function MenuEditor({ initial, notify, blobReady }: { initial: Dish[]; notify: N
         <button onClick={save} disabled={busy || !dirty} className="rounded-full bg-gradient-to-r from-saffron to-ember px-6 py-2 text-sm font-semibold text-coal disabled:opacity-40">
           {busy ? "Saving…" : dirty ? "Save menu" : "Saved"}
         </button>
-        <span className="text-xs text-cream/40">“Grill” dishes appear in the big showcase, “Deg” dishes in the curries &amp; biryani grid.</span>
+        <span className="text-xs text-cream/40">Dishes with a 3D piece appear in the 3D showcase. Dishes with “No 3D piece” (biryani, curries) appear in the “From the deg” list.</span>
       </div>
       <div className="mt-4 space-y-4">
         {menu.map((d, i) => (
-          <div key={d.id} className={`grid gap-4 rounded-2xl glass p-4 md:grid-cols-[180px_1fr] ${d.visible ? "" : "opacity-50"}`}>
-            <div>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={d.photo} alt="" className="aspect-square w-full rounded-xl object-cover" />
-              <label className={`mt-2 block cursor-pointer rounded-full border border-cream/20 py-1.5 text-center text-xs ${blobReady ? "" : "opacity-50"}`}>
-                {uploading === d.id ? "Uploading…" : "Upload photo"}
-                <input type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="hidden" disabled={!blobReady || uploading !== null} onChange={(e) => e.target.files?.[0] && upload(i, e.target.files[0])} />
-              </label>
-              {!blobReady && <p className="mt-1 text-[10px] text-cream/40">Connect Vercel Blob to upload, or paste a link.</p>}
-            </div>
+          <div key={d.id} className={`rounded-2xl glass p-4 ${d.visible ? "" : "opacity-50"}`}>
             <div className="grid gap-3 sm:grid-cols-2">
               <L label="Name">
                 <input value={d.name} onChange={(e) => update(i, { name: e.target.value })} className={input} />
@@ -376,11 +361,14 @@ function MenuEditor({ initial, notify, blobReady }: { initial: Dish[]; notify: N
                   <input type="number" min={0} max={3} value={d.heat} onChange={(e) => update(i, { heat: Math.max(0, Math.min(3, Number(e.target.value))) })} className={input} />
                 </L>
               </div>
-              <L label="Photo link" wide>
-                <input value={d.photo} onChange={(e) => update(i, { photo: e.target.value })} className={input} />
-              </L>
-              <L label="Photo credit (leave empty for your own photos)" wide>
-                <input value={d.photoCredit} onChange={(e) => update(i, { photoCredit: e.target.value })} className={input} />
+              <L label="3D piece shown on the website" wide>
+                <select value={d.piece} onChange={(e) => update(i, { piece: e.target.value as Dish["piece"] })} className={input}>
+                  {pieceKinds.map((k) => (
+                    <option key={k} value={k}>
+                      {pieceLabels[k]}
+                    </option>
+                  ))}
+                </select>
               </L>
               <div className="flex flex-wrap items-center gap-4 text-sm sm:col-span-2">
                 <label className="flex items-center gap-2">
