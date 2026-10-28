@@ -1,8 +1,12 @@
-import { degDishes, dishes, stats } from "@/config/business";
+"use client";
+
+import { stats } from "@/config/business";
+import { useSite } from "../SiteData";
 import { Counter, Spark } from "../ui";
 
 export function Marquee() {
-  const items = [...dishes.map((d) => d.name), ...degDishes.map((d) => d.name)];
+  const { menu } = useSite();
+  const items = menu.filter((d) => d.visible).map((d) => d.name);
   return (
     <section aria-label="Signature dishes" className="relative border-y border-cream/10 bg-soot py-6">
       <div className="flex overflow-hidden">

@@ -3,19 +3,29 @@ import { Nav } from "@/components/Nav";
 import { Hero } from "@/components/Hero";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { EmberCursor } from "@/components/EmberCursor";
+import { SiteDataProvider } from "@/components/SiteData";
+import { ChatWidget } from "@/components/ChatWidget";
 import { Marquee, Stats } from "@/components/sections/Marquee";
 import { Experience } from "@/components/sections/Experience";
 import { Menu } from "@/components/sections/Menu";
 import { Chef } from "@/components/sections/Chef";
-import { Packages } from "@/components/sections/Packages";
+import { Pricing } from "@/components/sections/Pricing";
 import { Booking } from "@/components/sections/Booking";
 import { Reviews } from "@/components/sections/Reviews";
 import { Trust } from "@/components/sections/Trust";
 import { Faq } from "@/components/sections/Faq";
 import { FinalCta, Footer, WhatsAppFab } from "@/components/sections/Footer";
 import { brand, faqs } from "@/config/business";
+import { getMenu, getSettings } from "@/lib/store";
 
-export default function Home() {
+// Re-rendered whenever the chef saves changes in the admin panel (revalidatePath), and hourly as a fallback.
+export const revalidate = 3600;
+
+export default async function Home() {
+  const [settings, menu] = await Promise.all([getSettings(), getMenu()]);
+  const { notifyEmail: _private, ...publicSettings } = settings;
+  void _private;
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@graph": [
@@ -26,16 +36,17 @@ export default function Home() {
         servesCuisine: ["Awadhi", "Mughlai", "North Indian", "Barbecue"],
         areaServed: brand.cities,
         email: brand.email,
+        priceRange: `₹${settings.pricePerPerson} per guest`,
       },
       {
         "@type": "FAQPage",
-        mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+        mainEntity: faqs(settings).map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
       },
     ],
   };
 
   return (
-    <>
+    <SiteDataProvider value={{ settings: publicSettings, menu }}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
       <SmoothScroll />
       <Intro />
@@ -48,7 +59,7 @@ export default function Home() {
         <Experience />
         <Menu />
         <Chef />
-        <Packages />
+        <Pricing />
         <Booking />
         <Reviews />
         <Trust />
@@ -57,6 +68,7 @@ export default function Home() {
       </main>
       <Footer />
       <WhatsAppFab />
-    </>
+      <ChatWidget />
+    </SiteDataProvider>
   );
 }

@@ -100,3 +100,33 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     animation: none;
   }
 }
+
+/* Real-photo 3D card */
+.kenburns {
+  animation: kenburns 18s ease-in-out infinite alternate;
+}
+@keyframes kenburns {
+  from { transform: scale(1); }
+  to { transform: scale(1.08); }
+}
+.steam {
+  opacity: 0;
+  animation: steam 7s ease-out infinite;
+}
+@keyframes steam {
+  0% { opacity: 0; transform: translateY(40px) scale(0.6); }
+  25% { opacity: 0.5; }
+  100% { opacity: 0; transform: translateY(-220px) scale(1.8) translateX(20px); }
+}
+@media (hover: none) {
+  .tilt-card {
+    animation: sway 9s ease-in-out infinite alternate;
+  }
+}
+@keyframes sway {
+  from { transform: rotateX(4deg) rotateY(-6deg); }
+  to { transform: rotateX(-3deg) rotateY(6deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kenburns, .steam, .tilt-card { animation: none; }
+}

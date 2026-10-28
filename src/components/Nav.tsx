@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { brand } from "@/config/business";
 import { FireSound } from "./FireSound";
-import { whatsappLink } from "@/lib/links";
+import { useWhatsApp } from "./SiteData";
+import { InstallApp } from "./InstallApp";
 
 const links = [
   { href: "#experience", label: "The Experience" },
   { href: "#menu", label: "Menu" },
-  { href: "#packages", label: "Packages" },
+  { href: "#pricing", label: "Pricing" },
   { href: "#reviews", label: "Reviews" },
   { href: "#faq", label: "FAQ" },
 ];
@@ -34,6 +35,7 @@ export function Logo({ className = "" }: { className?: string }) {
 export function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const whatsappLink = useWhatsApp();
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 40);
     on();
@@ -55,6 +57,7 @@ export function Nav() {
           ))}
         </ul>
         <div className="flex items-center gap-3">
+          <InstallApp />
           <FireSound />
           <a href="#book" className="hidden rounded-full bg-gradient-to-r from-saffron to-ember px-5 py-2.5 text-sm font-semibold text-coal shadow-[0_8px_30px_-6px_rgba(255,90,31,0.6)] transition hover:scale-105 sm:inline-block">
             Book the Chef

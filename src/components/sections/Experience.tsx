@@ -9,7 +9,7 @@ const timeline = [
   { time: "4:00 PM", title: "The crew arrives", text: "We set up the degs, grills and live coal counters at your venue. You don't lift a finger." },
   { time: "7:00 PM", title: "Fire meets meat", text: "Guests walk in to the smell of seekh and tikka hitting live coals. The counters become the centre of the party." },
   { time: "9:00 PM", title: "The Unveiling", text: "The dough seal on the biryani deg is broken in front of everyone. Steam, saffron, applause. Phones come out." },
-  { time: "Until late", title: "No clock on the dum", text: "We stay as long as your party runs. Hours beyond the package are billed on actuals at a rate you agreed upfront." },
+  { time: "Until late", title: "No clock on the dum", text: "The chef stays for your full evening, until the last plate. One per-guest price, no hourly meter." },
   { time: "After", title: "Spotless exit", text: "Your venue is left cleaner than we found it. Event photos of the food land in your inbox the next morning." },
 ];
 

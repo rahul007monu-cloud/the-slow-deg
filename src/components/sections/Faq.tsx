@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { faqs } from "@/config/business";
+import { faqs as buildFaqs } from "@/config/business";
+import { useSite } from "../SiteData";
 import { Eyebrow, Reveal, SectionTitle } from "../ui";
 
 export function Faq() {
   const [open, setOpen] = useState<number | null>(0);
+  const faqs = buildFaqs(useSite().settings);
   return (
     <section id="faq" className="mx-auto max-w-4xl px-5 py-28 sm:px-8">
       <Reveal className="text-center">
