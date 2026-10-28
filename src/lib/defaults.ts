@@ -14,12 +14,7 @@ export const defaultSettings: Settings = {
   oneEventPerDay: true,
 };
 
-const cc = (title: string, author: string, licence: string) => `“${title}” by ${author}, ${licence}, via Wikimedia Commons`;
-
-/**
- * Starter menu with free-licence photos from Wikimedia Commons.
- * Replace each photo with the chef's own from the admin panel and clear the credit.
- */
+/** Starter menu. The chef edits it from the admin panel. */
 export const defaultMenu: Dish[] = [
   {
     id: "raan",
@@ -31,8 +26,7 @@ export const defaultMenu: Dish[] = [
     heat: 2,
     signature: true,
     visible: true,
-    photo: "/food/raan.webp",
-    photoCredit: cc("Mutton Leg Or Raan", "Digitalmemorie", "CC BY-SA 4.0"),
+    piece: "raan",
   },
   {
     id: "seekh",
@@ -44,34 +38,31 @@ export const defaultMenu: Dish[] = [
     heat: 2,
     signature: true,
     visible: true,
-    photo: "/food/seekh.webp",
-    photoCredit: cc("Seekh Kebabs on Fire", "Sumitmalhotra", "CC BY-SA 4.0"),
+    piece: "seekh",
   },
   {
     id: "tandoori",
-    name: "Tandoori Chicken",
+    name: "Tandoori Tangdi",
     hindi: "तंदूरी",
-    description: "Bone-in chicken in a hung-curd and Kashmiri chilli marinade, charred in the tandoor and finished with smoked butter.",
+    description: "Chicken drumsticks in a hung-curd and Kashmiri chilli marinade, charred in the tandoor and finished with smoked butter.",
     category: "grill",
     tag: "Cooked live",
     heat: 3,
     signature: false,
     visible: true,
-    photo: "/food/tandoori.webp",
-    photoCredit: cc("Tandoori chicken Indian", "pelican", "CC BY-SA 2.0"),
+    piece: "drumstick",
   },
   {
     id: "tikka",
-    name: "Chicken Tikka Sizzler",
+    name: "Murgh Malai Tikka",
     hindi: "टिक्का",
-    description: "Boneless chicken tikka served sizzling on cast iron with charred onions, peppers and lemon.",
+    description: "Boneless chicken in cream, cheese and green cardamom, threaded with onion and peppers. Gentle heat, rich flavour.",
     category: "grill",
     tag: "Cooked live",
     heat: 2,
     signature: false,
     visible: true,
-    photo: "/food/tikka.webp",
-    photoCredit: cc("Grilled Chicken Tikka Sizzler with Vegetables and Lemon Wedge", "Iwaqarhashmi", "CC BY-SA 4.0"),
+    piece: "tikka",
   },
   {
     id: "fish",
@@ -83,8 +74,19 @@ export const defaultMenu: Dish[] = [
     heat: 1,
     signature: false,
     visible: true,
-    photo: "/food/fish.webp",
-    photoCredit: cc("Fish malai tikka", "P1898", "CC BY 4.0"),
+    piece: "fish",
+  },
+  {
+    id: "chops",
+    name: "Burrah Chops",
+    hindi: "चॉप्स",
+    description: "Lamb chops in a double marinade of raw papaya and spices, seared hard and rested for a juicy pink centre.",
+    category: "grill",
+    tag: "Slow-cooked 6 hrs",
+    heat: 2,
+    signature: true,
+    visible: true,
+    piece: "chop",
   },
   {
     id: "biryani",
@@ -96,8 +98,7 @@ export const defaultMenu: Dish[] = [
     heat: 2,
     signature: true,
     visible: true,
-    photo: "/food/biryani.webp",
-    photoCredit: cc("Mutton Dum biryani", "Poojaart09", "CC BY-SA 4.0"),
+    piece: "none",
   },
   {
     id: "nihari",
@@ -109,8 +110,7 @@ export const defaultMenu: Dish[] = [
     heat: 2,
     signature: true,
     visible: true,
-    photo: "/food/nihari.webp",
-    photoCredit: cc("Nihari at Karim's, Jama Masjid, Old Delhi", "Kxnyshk", "CC BY-SA 4.0"),
+    piece: "none",
   },
   {
     id: "roganjosh",
@@ -122,8 +122,7 @@ export const defaultMenu: Dish[] = [
     heat: 2,
     signature: false,
     visible: true,
-    photo: "/food/roganjosh.webp",
-    photoCredit: cc("Mutton Rogan Josh - Mohali 2016-08-07 9110", "Biswarup Ganguly", "CC BY 3.0"),
+    piece: "none",
   },
   {
     id: "butterchicken",
@@ -135,10 +134,6 @@ export const defaultMenu: Dish[] = [
     heat: 1,
     signature: false,
     visible: true,
-    photo: "/food/butterchicken.webp",
-    photoCredit: cc("CreamyButterChicken", "Amar Nath Adak", "CC BY-SA 4.0"),
+    piece: "none",
   },
 ];
-
-/** Photo shown in the Experience section (tandoor in action). */
-export const tandoorPhoto = { src: "/food/tandoor.webp", credit: cc("Tandoori Chicken with oven", "Nitinmaul", "CC BY-SA 4.0") };

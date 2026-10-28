@@ -14,7 +14,6 @@
     "@react-three/fiber": "9.8.2",
     "@react-three/postprocessing": "3.2.2",
     "@upstash/redis": "^1.40.0",
-    "@vercel/blob": "^2.8.2",
     "ai": "^7.0.155",
     "jose": "^6.2.13",
     "lenis": "1.3.27",

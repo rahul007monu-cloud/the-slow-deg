@@ -3,32 +3,19 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Billboard, ContactShadows, Environment, Float, Image, Lightformer, PerformanceMonitor, RoundedBox } from "@react-three/drei";
+import { ContactShadows, Environment, Float, Lightformer, PerformanceMonitor } from "@react-three/drei";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import { Deg } from "./Deg";
+import { Drumstick, FishTikka, LambChop, Raan, SeekhKebab, TikkaSkewer } from "./MeatPieces";
 
-// Real food photos orbit the deg as floating, glowing cards.
-const slots = [
-  { angle: 0.2, r: 3.5, y: 2.7 },
-  { angle: 1.25, r: 3.3, y: 1.1 },
-  { angle: 2.3, r: 3.6, y: 2.9 },
-  { angle: 3.3, r: 3.4, y: 0.9 },
-  { angle: 4.3, r: 3.5, y: 2.4 },
-  { angle: 5.3, r: 3.6, y: 1.3 },
+const orbit = [
+  { C: SeekhKebab, angle: 0.2, r: 3.4, y: 2.6, s: 0.85 },
+  { C: Drumstick, angle: 1.25, r: 3.2, y: 1.2, s: 0.9 },
+  { C: TikkaSkewer, angle: 2.3, r: 3.5, y: 2.9, s: 0.8 },
+  { C: LambChop, angle: 3.3, r: 3.3, y: 0.9, s: 0.9 },
+  { C: FishTikka, angle: 4.3, r: 3.4, y: 2.4, s: 0.8 },
+  { C: Raan, angle: 5.3, r: 3.6, y: 1.4, s: 0.7 },
 ];
-const CARD_W = 1.15;
-const CARD_H = 0.85;
-
-function PhotoCard({ url }: { url: string }) {
-  return (
-    <Billboard>
-      <RoundedBox args={[CARD_W + 0.07, CARD_H + 0.07, 0.03]} radius={0.1} smoothness={4} position={[0, 0, -0.03]}>
-        <meshStandardMaterial color="#2a160b" emissive="#ff7a2a" emissiveIntensity={0.55} metalness={0.6} roughness={0.35} />
-      </RoundedBox>
-      <Image url={url} scale={[CARD_W, CARD_H]} radius={0.08} toneMapped={false} color="#ece4da" />
-    </Billboard>
-  );
-}
 
 /** Reads the page scroll (works with Lenis, which drives native scroll) and maps it to 0..1 over the hero. */
 function useScrollProgress(ref: React.RefObject<number>, setActive: (v: boolean) => void) {
@@ -62,7 +49,7 @@ function Rig({ progress }: { progress: React.RefObject<number> }) {
   return null;
 }
 
-function Orbiters({ progress, photos }: { progress: React.RefObject<number>; photos: string[] }) {
+function Orbiters({ progress }: { progress: React.RefObject<number> }) {
   const g = useRef<THREE.Group>(null);
   useFrame((s, dt) => {
     if (!g.current) return;
@@ -73,23 +60,18 @@ function Orbiters({ progress, photos }: { progress: React.RefObject<number>; pho
   });
   return (
     <group ref={g} position={[0.6, 0, -0.6]}>
-      {photos.slice(0, slots.length).map((url, i) => {
-        const { angle, r, y } = slots[i];
-        return (
-          <group key={url} position={[Math.cos(angle) * r, y, Math.sin(angle) * r]}>
-            <Float speed={1.2 + i * 0.15} rotationIntensity={0.35} floatIntensity={1.2}>
-              <Suspense fallback={null}>
-                <PhotoCard url={url} />
-              </Suspense>
-            </Float>
-          </group>
-        );
-      })}
+      {orbit.map(({ C, angle, r, y, s }, i) => (
+        <group key={i} position={[Math.cos(angle) * r, y, Math.sin(angle) * r]} scale={s}>
+          <Float speed={1.4 + i * 0.15} rotationIntensity={1.2} floatIntensity={1.4}>
+            <C />
+          </Float>
+        </group>
+      ))}
     </group>
   );
 }
 
-export default function HeroScene({ photos }: { photos: string[] }) {
+export default function HeroScene() {
   const progress = useRef(0);
   const [active, setActive] = useState(true);
   useScrollProgress(progress, setActive);
@@ -119,14 +101,14 @@ export default function HeroScene({ photos }: { photos: string[] }) {
         </Environment>
         <group position={[0, -0.6, 0]}>
           <Deg openRef={progress} />
-          <Orbiters progress={progress} photos={photos} />
+          <Orbiters progress={progress} />
           <ContactShadows position={[0, -0.3, 0]} opacity={0.7} scale={12} blur={2.6} far={4} color="#000" />
         </group>
       </Suspense>
       <Rig progress={progress} />
       {fx && (
         <EffectComposer multisampling={0}>
-          <Bloom mipmapBlur luminanceThreshold={0.92} luminanceSmoothing={0.1} intensity={0.9} radius={0.7} />
+          <Bloom mipmapBlur luminanceThreshold={0.75} intensity={0.9} radius={0.7} />
           <Vignette eskil={false} offset={0.25} darkness={0.85} />
         </EffectComposer>
       )}

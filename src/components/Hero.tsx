@@ -6,7 +6,6 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { useIntroDone } from "./Intro";
 import { brand } from "@/config/business";
 import { Spark } from "./ui";
-import { useSite } from "./SiteData";
 
 const HeroScene = dynamic(() => import("./three/HeroScene"), { ssr: false });
 
@@ -18,8 +17,6 @@ const line = {
 export function Hero() {
   const ref = useRef<HTMLElement>(null);
   const ready = useIntroDone();
-  const { menu } = useSite();
-  const photos = menu.filter((d) => d.visible && d.photo).map((d) => d.photo);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const introOpacity = useTransform(scrollYProgress, [0, 0.3], [1, 0]);
   const introY = useTransform(scrollYProgress, [0, 0.3], [0, -80]);
@@ -32,7 +29,7 @@ export function Hero() {
       <div className="sticky top-0 h-screen overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_60%_80%,rgba(255,90,31,0.18),transparent_60%),radial-gradient(ellipse_at_20%_10%,rgba(240,169,59,0.08),transparent_50%)]" />
         <div className="absolute inset-0">
-          <HeroScene photos={photos} />
+          <HeroScene />
         </div>
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-coal to-transparent" />
         {/* keeps the headline readable when pieces float behind it */}

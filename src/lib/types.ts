@@ -15,6 +15,9 @@ export const settingsSchema = z.object({
 });
 export type Settings = z.infer<typeof settingsSchema>;
 
+export const pieceKinds = ["drumstick", "seekh", "tikka", "chop", "raan", "fish", "none"] as const;
+export type PieceKind = (typeof pieceKinds)[number];
+
 export const dishSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]{1,40}$/),
   name: z.string().trim().min(1).max(80),
@@ -25,8 +28,7 @@ export const dishSchema = z.object({
   heat: z.number().int().min(0).max(3),
   signature: z.boolean(),
   visible: z.boolean(),
-  photo: z.string().max(500), // /food/x.webp or an uploaded image URL
-  photoCredit: z.string().max(300), // required by CC licences for stock photos; clear it for your own photos
+  piece: z.enum(pieceKinds).default("none"), // which 3D piece to show; "none" for curries & biryani
 });
 export type Dish = z.infer<typeof dishSchema>;
 export const menuSchema = z.array(dishSchema).max(60);

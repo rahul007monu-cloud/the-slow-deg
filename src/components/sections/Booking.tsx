@@ -219,9 +219,7 @@ export function Booking() {
                             const on = f.dishIds.includes(d.id);
                             return (
                               <button key={d.id} type="button" onClick={() => toggleDish(d.id)} aria-pressed={on} className={`flex items-center gap-3 rounded-2xl border p-2 pr-4 text-left transition ${on ? "border-saffron bg-saffron/10" : "border-cream/10 hover:border-cream/30"}`}>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={d.photo} alt="" loading="lazy" className="h-12 w-12 rounded-xl object-cover" />
-                                <span className="flex-1 text-sm text-cream">{d.name}</span>
+                                <span className="flex-1 py-2 pl-2 text-sm text-cream">{d.name}</span>
                                 {on && <Check />}
                               </button>
                             );
