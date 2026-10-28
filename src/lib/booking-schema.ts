@@ -32,7 +32,7 @@ export const bookingSchema = z.object({
     .optional()
     .default(""),
   // spam trap: real users never fill this
-  website: z.string().max(0).optional().default(""),
+  website: z.string().max(200).optional().default(""),
 });
 
 export type BookingInput = z.input<typeof bookingSchema>;
