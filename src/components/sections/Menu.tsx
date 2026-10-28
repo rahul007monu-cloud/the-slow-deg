@@ -1,16 +1,20 @@
 "use client";
 
-import dynamic from "next/dynamic";
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { degDishes, dishes } from "@/config/business";
-import { Eyebrow, Heat, Reveal, SectionTitle, WhenVisible } from "../ui";
-
-const DishViewer = dynamic(() => import("../three/DishViewer"), { ssr: false });
+import { useSite } from "../SiteData";
+import { TiltPhoto } from "../TiltPhoto";
+import { Eyebrow, Heat, Reveal, SectionTitle } from "../ui";
 
 export function Menu() {
-  const [active, setActive] = useState(dishes[0].id);
-  const dish = dishes.find((d) => d.id === active)!;
+  const { menu } = useSite();
+  const dishes = menu.filter((d) => d.visible);
+  const featured = dishes.filter((d) => d.category === "grill");
+  const fromDeg = dishes.filter((d) => d.category === "deg");
+  const list = featured.length ? featured : dishes;
+  const [active, setActive] = useState(list[0]?.id);
+  const dish = list.find((d) => d.id === active) ?? list[0];
+  if (!dish) return null;
 
   return (
     <section id="menu" className="relative overflow-hidden py-28">
@@ -19,63 +23,68 @@ export function Menu() {
         <Reveal>
           <Eyebrow>Signature Menu</Eyebrow>
           <SectionTitle>
-            Off the coals, <span className="italic text-gradient-ember">in 3D.</span>
+            Off the coals, <span className="italic text-gradient-ember">onto your plate.</span>
           </SectionTitle>
-          <p className="mt-4 max-w-xl text-cream/60">Tap a dish, then drag to turn it around. Every piece is cooked live in front of your guests.</p>
+          <p className="mt-4 max-w-xl text-cream/60">Tap a dish to see it up close. Everything is cooked live at your venue.</p>
         </Reveal>
 
-        <div className="mt-14 grid items-center gap-10 lg:grid-cols-[1fr_1.3fr]">
-          <ul className="space-y-2">
-            {dishes.map((d, i) => (
+        <div className="mt-14 grid items-start gap-10 lg:grid-cols-[1fr_1.35fr]">
+          <ul className="order-2 space-y-2 lg:order-1">
+            {list.map((d, i) => (
               <li key={d.id}>
                 <button
                   onClick={() => setActive(d.id)}
-                  className={`group flex w-full items-center gap-5 rounded-2xl px-5 py-4 text-left transition ${active === d.id ? "glass ember-ring" : "hover:bg-cream/5"}`}
+                  className={`group flex w-full items-center gap-4 rounded-2xl px-4 py-3 text-left transition ${dish.id === d.id ? "glass ember-ring" : "hover:bg-cream/5"}`}
                 >
-                  <span className={`font-display text-sm ${active === d.id ? "text-saffron" : "text-cream/30"}`}>{String(i + 1).padStart(2, "0")}</span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={d.photo} alt="" loading="lazy" className={`h-14 w-14 shrink-0 rounded-xl object-cover transition ${dish.id === d.id ? "" : "opacity-60 grayscale-[40%] group-hover:opacity-100"}`} />
                   <span className="flex-1">
-                    <span className={`block font-display text-2xl transition ${active === d.id ? "text-cream" : "text-cream/60 group-hover:text-cream"}`}>{d.name}</span>
+                    <span className={`block font-display text-2xl leading-tight transition ${dish.id === d.id ? "text-cream" : "text-cream/60 group-hover:text-cream"}`}>{d.name}</span>
                     <span className="text-xs tracking-wider text-cream/40 uppercase">
-                      {d.hours === "Live" ? "Cooked live" : `Slow-cooked ${d.hours}`} · <Heat level={d.heat} />
+                      {d.tag} {d.heat > 0 && <>· <Heat level={d.heat} /></>}
                     </span>
                   </span>
-                  {d.signature && <span className="rounded-full border border-saffron/40 px-2 py-0.5 text-[10px] tracking-widest text-saffron uppercase">Signature</span>}
+                  <span className="hidden font-display text-sm text-cream/25 sm:block">{String(i + 1).padStart(2, "0")}</span>
                 </button>
               </li>
             ))}
           </ul>
 
-          <div className="relative">
-            <div className="relative aspect-square overflow-hidden rounded-[2.5rem] border border-cream/10 bg-[radial-gradient(circle_at_50%_70%,#2a1810,#0b0807_70%)] sm:aspect-[4/3]">
-              <span className="pointer-events-none absolute top-6 left-1/2 -translate-x-1/2 font-deva text-[9rem] leading-none text-cream/[0.04] sm:text-[12rem]">{dish.hindi}</span>
-              <WhenVisible className="absolute inset-0">
-                <DishViewer kind={dish.piece} />
-              </WhenVisible>
-              <div className="pointer-events-none absolute right-5 bottom-5 rounded-full glass px-3 py-1.5 text-[10px] tracking-widest text-cream/60 uppercase">Drag to rotate</div>
-            </div>
+          <div className="order-1 lg:sticky lg:top-28 lg:order-2">
             <AnimatePresence mode="wait">
-              <motion.div key={dish.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.35 }} className="mt-6">
-                <h3 className="font-display text-4xl text-cream">{dish.name}</h3>
-                <p className="mt-2 max-w-xl text-cream/65">{dish.description}</p>
+              <motion.div key={dish.id} initial={{ opacity: 0, scale: 0.96, rotateX: 8 }} animate={{ opacity: 1, scale: 1, rotateX: 0 }} exit={{ opacity: 0, scale: 0.98 }} transition={{ duration: 0.45, ease: [0.2, 0.7, 0.2, 1] }}>
+                <TiltPhoto src={dish.photo} alt={dish.name} credit={dish.photoCredit} className="aspect-[4/5] sm:aspect-[4/3]">
+                  <div className="flex items-end justify-between gap-4">
+                    <div>
+                      {dish.signature && <span className="mb-3 inline-block rounded-full bg-gradient-to-r from-saffron to-ember px-3 py-1 text-[10px] font-bold tracking-widest text-coal uppercase">Signature</span>}
+                      <h3 className="font-display text-4xl leading-none text-cream drop-shadow-lg sm:text-5xl">{dish.name}</h3>
+                      <p className="mt-3 max-w-lg text-sm text-cream/80 sm:text-base">{dish.description}</p>
+                    </div>
+                    {dish.hindi && <span className="hidden font-deva text-5xl text-saffron/80 drop-shadow-lg sm:block">{dish.hindi}</span>}
+                  </div>
+                </TiltPhoto>
               </motion.div>
             </AnimatePresence>
           </div>
         </div>
 
-        <Reveal className="mt-24">
-          <h3 className="font-display text-3xl text-cream">
-            From the deg <span className="font-deva text-2xl text-saffron">देग से</span>
-          </h3>
-          <div className="mt-8 grid gap-px overflow-hidden rounded-3xl border border-cream/10 bg-cream/10 sm:grid-cols-2 lg:grid-cols-3">
-            {degDishes.map((d) => (
-              <div key={d.name} className="bg-coal p-7 transition hover:bg-soot">
-                <div className="font-display text-2xl text-cream">{d.name}</div>
-                <div className="mt-1 text-sm text-cream/50">{d.note}</div>
-              </div>
-            ))}
-          </div>
-          <p className="mt-6 text-sm text-cream/45">Vegetarian dishes are cooked in separate degs on request. The full menu is designed with you on the tasting call.</p>
-        </Reveal>
+        {fromDeg.length > 0 && featured.length > 0 && (
+          <Reveal className="mt-24">
+            <h3 className="font-display text-3xl text-cream">
+              From the deg <span className="font-deva text-2xl text-saffron">देग से</span>
+            </h3>
+            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {fromDeg.map((d) => (
+                <TiltPhoto key={d.id} src={d.photo} alt={d.name} credit={d.photoCredit} className="aspect-[3/4]">
+                  <div className="text-xs tracking-widest text-saffron uppercase">{d.tag}</div>
+                  <div className="mt-1 font-display text-2xl leading-tight text-cream">{d.name}</div>
+                  <p className="mt-1 line-clamp-3 text-xs text-cream/70">{d.description}</p>
+                </TiltPhoto>
+              ))}
+            </div>
+            <p className="mt-6 text-sm text-cream/45">Vegetarian dishes are cooked in separate degs on request. Your final menu is designed with you on the call.</p>
+          </Reveal>
+        )}
       </div>
     </section>
   );

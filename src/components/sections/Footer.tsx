@@ -1,8 +1,11 @@
+"use client";
+
 import { brand } from "@/config/business";
-import { whatsappLink } from "@/lib/links";
+import { useWhatsApp } from "../SiteData";
 import { Logo } from "../Nav";
 
 export function FinalCta() {
+  const whatsappLink = useWhatsApp();
   return (
     <section className="relative overflow-hidden py-32 text-center">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_100%,rgba(255,90,31,0.35),transparent_60%)]" />
@@ -28,6 +31,7 @@ export function FinalCta() {
 }
 
 export function Footer() {
+  const whatsappLink = useWhatsApp();
   return (
     <footer className="border-t border-cream/10 bg-coal">
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-16 sm:px-8 md:grid-cols-3">
@@ -52,19 +56,24 @@ export function Footer() {
           </a>
         </div>
       </div>
-      <div className="border-t border-cream/5 py-6 text-center text-xs text-cream/30">© {new Date().getFullYear()} {brand.name}. Cooked slow, served with love.</div>
+      <div className="border-t border-cream/5 py-6 text-center text-xs text-cream/30">© {new Date().getFullYear()} {brand.name}. Cooked slow, served with love. ·{" "}
+        <a href="/credits" className="underline-offset-2 hover:text-cream/60 hover:underline">
+          Photo credits
+        </a>
+      </div>
     </footer>
   );
 }
 
 export function WhatsAppFab() {
+  const whatsappLink = useWhatsApp();
   return (
     <a
       href={whatsappLink("Hi! I'd like to book The Slow Deg for an event.")}
       target="_blank"
       rel="noopener"
       aria-label="Chat on WhatsApp"
-      className="fixed right-5 bottom-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-[0_10px_30px_-5px_rgba(37,211,102,0.6)] transition hover:scale-110"
+      className="fixed right-5 bottom-24 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] shadow-[0_10px_30px_-5px_rgba(37,211,102,0.6)] transition hover:scale-110"
     >
       <svg viewBox="0 0 24 24" className="h-7 w-7 fill-coal" aria-hidden>
         <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .1-1.3c0-.1-.2-.2-.4-.3Z" />

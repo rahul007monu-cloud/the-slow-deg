@@ -12,13 +12,14 @@ export const metadata: Metadata = {
   description:
     "Book a master non-veg chef for your corporate event. Dum biryani, live seekh, raan carving and slow-cooked Awadhi classics, cooked live at your venue for as long as the party runs.",
   applicationName: brand.name,
-  manifest: "/manifest.webmanifest",
+  icons: { icon: "/icon.svg", apple: "/icons/apple-touch-icon.png" },
   openGraph: {
     title: brand.name,
     description: brand.tagline,
     type: "website",
   },
   appleWebApp: { capable: true, title: brand.name, statusBarStyle: "black-translucent" },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {
