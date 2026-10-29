@@ -6,6 +6,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { ContactShadows, Environment, Float, Lightformer, PerformanceMonitor } from "@react-three/drei";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import { Deg } from "./Deg";
+import { isLowEnd } from "./materials";
 import { Drumstick, FishTikka, LambChop, Raan, SeekhKebab, TikkaSkewer } from "./MeatPieces";
 
 const orbit = [
@@ -75,34 +76,35 @@ export default function HeroScene() {
   const progress = useRef(0);
   const [active, setActive] = useState(true);
   useScrollProgress(progress, setActive);
-  const [dpr, setDpr] = useState(1.5);
-  const [fx, setFx] = useState(true);
+  const [low] = useState(isLowEnd);
+  const [dpr, setDpr] = useState(low ? 1 : 1.5);
+  const [fx, setFx] = useState(!low);
 
   return (
     <Canvas
-      shadows
+      shadows={!low}
       frameloop={active ? "always" : "never"}
       dpr={dpr}
       camera={{ position: [0, 2.6, 9], fov: 38 }}
-      gl={{ antialias: true, powerPreference: "high-performance", toneMapping: THREE.ACESFilmicToneMapping }}
+      gl={{ antialias: !low, powerPreference: "high-performance", toneMapping: THREE.ACESFilmicToneMapping }}
       onCreated={({ gl }) => gl.setClearColor("#0b0807", 0)}
     >
-      <PerformanceMonitor onDecline={() => { setDpr(1); setFx(false); }} onIncline={() => setDpr(Math.min(2, window.devicePixelRatio))} />
+      <PerformanceMonitor onDecline={() => { setDpr(1); setFx(false); }} onIncline={() => setDpr(Math.min(low ? 1.5 : 2, window.devicePixelRatio))} />
       <fog attach="fog" args={["#0b0807", 9, 22]} />
       <ambientLight intensity={0.15} />
       <spotLight position={[4, 8, 5]} angle={0.45} penumbra={0.8} intensity={60} color="#ffd7a8" castShadow shadow-mapSize={[1024, 1024]} />
       <directionalLight position={[-6, 3, -4]} intensity={0.8} color="#6f86ff" />
       <Suspense fallback={null}>
-        <Environment resolution={256}>
+        <Environment resolution={low ? 64 : 256}>
           <Lightformer form="rect" intensity={3} color="#ffb070" position={[0, 5, -6]} scale={[12, 4, 1]} />
           <Lightformer form="rect" intensity={1.5} color="#ff6a2a" position={[-6, 1, 0]} rotation-y={Math.PI / 2} scale={[8, 2, 1]} />
           <Lightformer form="ring" intensity={2} color="#ffe2c0" position={[5, 3, 3]} scale={3} />
           <Lightformer form="rect" intensity={0.6} color="#7f93ff" position={[6, 0, -2]} rotation-y={-Math.PI / 2} scale={[8, 2, 1]} />
         </Environment>
         <group position={[0, -0.6, 0]}>
-          <Deg openRef={progress} />
+          <Deg openRef={progress} low={low} />
           <Orbiters progress={progress} />
-          <ContactShadows position={[0, -0.3, 0]} opacity={0.7} scale={12} blur={2.6} far={4} color="#000" />
+          <ContactShadows position={[0, -0.3, 0]} opacity={0.7} scale={12} blur={2.6} far={4} color="#000" frames={low ? 1 : Infinity} resolution={low ? 256 : 512} />
         </group>
       </Suspense>
       <Rig progress={progress} />

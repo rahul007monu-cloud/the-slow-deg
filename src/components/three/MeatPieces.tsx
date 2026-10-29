@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import * as THREE from "three";
 import type { PieceKind } from "@/lib/types";
-import { fbm3, looks, meatMaps, organic, rng } from "./materials";
+import { fbm3, isLowEnd, looks, meatMaps, organic, rng } from "./materials";
 
 type Tone = keyof typeof looks;
 
@@ -23,6 +23,8 @@ function MeatMaterial({ tone, glaze = 0.6, repeat = [1, 1] }: { tone: Tone; glaz
     };
     return { map: c(m.map), bumpMap: c(m.bumpMap), roughnessMap: c(m.roughnessMap) };
   }, [tone, rx, ry]);
+  if (isLowEnd())
+    return <meshStandardMaterial map={maps.map} bumpMap={maps.bumpMap} bumpScale={3} roughnessMap={maps.roughnessMap} roughness={0.85} />;
   return (
     <meshPhysicalMaterial
       map={maps.map}
@@ -40,6 +42,7 @@ function MeatMaterial({ tone, glaze = 0.6, repeat = [1, 1] }: { tone: Tone; glaz
 }
 
 function BoneMaterial() {
+  if (isLowEnd()) return <meshStandardMaterial color="#e9dcc0" roughness={0.5} />;
   return <meshPhysicalMaterial color="#e9dcc0" roughness={0.5} clearcoat={0.15} sheen={0.3} sheenColor="#fff2d8" />;
 }
 function SteelMaterial() {
