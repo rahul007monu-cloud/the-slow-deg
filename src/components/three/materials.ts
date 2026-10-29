@@ -2,6 +2,18 @@
 
 import * as THREE from "three";
 
+/** Phones, tablets and low-core devices get a lighter scene (smaller textures, no shadows or post effects). */
+let low: boolean | undefined;
+export function isLowEnd() {
+  if (low !== undefined) return low;
+  if (typeof window === "undefined") return false;
+  low =
+    window.matchMedia("(pointer: coarse)").matches ||
+    window.innerWidth < 768 ||
+    (navigator.hardwareConcurrency ?? 8) <= 4;
+  return low;
+}
+
 /** Tiny deterministic PRNG so textures and shapes look the same on every load. */
 export function rng(seed: number) {
   let s = seed >>> 0;
@@ -74,6 +86,7 @@ const smooth = (e0: number, e1: number, x: number) => fade(clamp01((x - e0) / (e
  * charred peaks are dark and rough, marinade valleys are glossy with oil.
  */
 export function meatMaps(key: string, look: MeatLook, seed = 1, size = 512): MeatMaps {
+  if (isLowEnd()) size = Math.min(size, 128);
   const id = `meat:${key}:${size}`;
   const hit = cache.get(id);
   if (hit) return hit as MeatMaps;
@@ -146,7 +159,7 @@ export function meatMaps(key: string, look: MeatLook, seed = 1, size = 512): Mea
     const t = new THREE.CanvasTexture(c);
     if (srgb) t.colorSpace = THREE.SRGBColorSpace;
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
-    t.anisotropy = 8;
+    t.anisotropy = isLowEnd() ? 2 : 8;
     return t;
   };
   const maps = { map: tex(cc, true), bumpMap: tex(bc, false), roughnessMap: tex(rc, false) };

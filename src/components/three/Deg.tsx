@@ -11,7 +11,7 @@ const v2 = (x: number, y: number) => new THREE.Vector2(x, y);
  * The hero object: a copper deg sealed with dough (dum pukht), sitting on live coals.
  * `openRef.current` (0..1) lifts the lid and breaks the seal; it is driven by scroll.
  */
-export function Deg({ openRef }: { openRef: React.RefObject<number> }) {
+export function Deg({ openRef, low = false }: { openRef: React.RefObject<number>; low?: boolean }) {
   const lid = useRef<THREE.Group>(null);
   const seal = useRef<THREE.Mesh>(null);
   const insideGlow = useRef<THREE.PointLight>(null);
@@ -106,9 +106,9 @@ export function Deg({ openRef }: { openRef: React.RefObject<number> }) {
         <torusGeometry args={[1.25, 0.06, 12, 64]} />
         <meshStandardMaterial color="#1b1b1b" metalness={0.8} roughness={0.6} />
       </mesh>
-      <Coals count={70} radius={1.7} y={-0.2} />
+      <Coals count={low ? 36 : 70} radius={1.7} y={-0.2} />
       <FireLight />
-      <Embers />
+      <Embers count={low ? 60 : 140} />
       <Steam openRef={openRef} />
     </group>
   );
